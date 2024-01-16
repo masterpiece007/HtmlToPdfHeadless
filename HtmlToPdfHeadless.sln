@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HtmlToPdfHeadless", "HtmlToPdfHeadless.csproj", "{DCD01B15-4FE2-44E7-B8A3-4B4D09E7340B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DCD01B15-4FE2-44E7-B8A3-4B4D09E7340B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCD01B15-4FE2-44E7-B8A3-4B4D09E7340B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCD01B15-4FE2-44E7-B8A3-4B4D09E7340B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCD01B15-4FE2-44E7-B8A3-4B4D09E7340B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C44269CE-FBE8-4D85-9E85-7FDF9A490890}
+	EndGlobalSection
+EndGlobal
