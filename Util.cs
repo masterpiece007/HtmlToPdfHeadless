@@ -25,26 +25,15 @@ namespace HtmlToPdfHeadless
         ///the html text you want to convert to pdf
         /// </param>
         /// <returns>byte[]</returns>
-        public async Task<byte[]> GeneratePdfFromHtmlTextAsync(string outputPath,string htmlText)
+        public async Task<GenericResponse> GeneratePdfFromHtmlTextAsync(string outputPath,string htmlText)
         {
+            var response = new GenericResponse();
             try
             {
                 var fileName_ = AlphaNumeric(9);
                 var htmlPath_ = Path.Combine(outputPath, $"{fileName_}.html");
 
-                File.WriteAllText(htmlPath_, htmlText);
-
-                var output = Path.Combine(outputPath, $"{fileName_}.pdf");
-
-                using (var p = new Process())
-                {
-                  
-                    //p.StartInfo.FileName = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
-                    p.StartInfo.FileName = _pathToChromeExecutable;
-                    p.StartInfo.Arguments = $"--headless --disable-gpu --print-to-pdf={output} --no-pdf-header-footer --print-to-pdf-no-footer {htmlPath_}";
-                    p.Start();
-                    await p.WaitForExitAsync();
-                }
+                var output = await ChromeHeadlessAsync(outputPath, htmlText, htmlPath_, fileName_);
 
                 var count = 0;
                 while (!File.Exists(output))
@@ -52,18 +41,21 @@ namespace HtmlToPdfHeadless
                     count++;
                     if (count > 3)
                     {
-                        return null;
+                        return response.Failed($"pdf file not found");
                     }
                     await Task.Delay(100);
                 }
-                return await File.ReadAllBytesAsync(output);
+
+                response.Data = await File.ReadAllBytesAsync(output);
+                return response.Success("Pdf generated successfully");  
             }
             catch (Exception e)
             {
-                return null;
+                return response.Failed($"an error occurred: {e.Message}");
             }
         }
-     
+
+
         /// <summary>
         /// this method generates pdf asynchronously
         /// </summary>
@@ -74,22 +66,14 @@ namespace HtmlToPdfHeadless
         ///this is the path to the html file you want to convert to pdf
         /// </param>
         /// <returns>byte[]</returns>
-        public async Task<byte[]> GeneratePdfFromHtmlFileAsync(string outputPath,string pathToHtmlFile)
+        public async Task<GenericResponse> GeneratePdfFromHtmlFileAsync(string outputPath,string pathToHtmlFile)
         {
+            var response = new GenericResponse();
+
             try
             {
                 var fileName_ = AlphaNumeric(9);
-                var output = Path.Combine(outputPath, $"{fileName_}.pdf");
-
-                using (var p = new Process())
-                {
-                    var chromeExePath = Path.Combine(Directory.GetCurrentDirectory(), "Assets", "chrome.exe");
-                    //p.StartInfo.FileName = chromeExePath;
-                    p.StartInfo.FileName = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
-                    p.StartInfo.Arguments = $"--headless --disable-gpu --print-to-pdf={output} --no-pdf-header-footer --print-to-pdf-no-footer {pathToHtmlFile}";
-                    p.Start();
-                    await p.WaitForExitAsync();
-                }
+                var output = await ChromeHeadlessAsync(outputPath, pathToHtmlFile, fileName_);
 
                 var count = 0;
                 while (!File.Exists(output))
@@ -97,18 +81,21 @@ namespace HtmlToPdfHeadless
                     count++;
                     if (count > 3)
                     {
-                        return null;
+                        return response.Failed($"pdf file not found");
                     }
                     await Task.Delay(100);
                 }
-                return await File.ReadAllBytesAsync(output);
+                response.Data = await File.ReadAllBytesAsync(output);
+                return response.Success("Pdf generated successfully");
             }
             catch (Exception e)
             {
-                return null;
+                return response.Failed($"an error occurred: {e.Message}");
             }
         }
-       
+
+      
+
         /// <summary>
         /// this method generates pdf synchronously
         /// </summary>
@@ -119,8 +106,10 @@ namespace HtmlToPdfHeadless
         ///the html text you want to convert to pdf
         /// </param>
         /// <returns>byte[]</returns>
-        public byte[] GeneratePdfFromHtmlText(string outputPath,string htmlText)
+        public GenericResponse GeneratePdfFromHtmlText(string outputPath,string htmlText)
         {
+            var response = new GenericResponse();
+
             try
             {
                 var fileName_ = AlphaNumeric(9);
@@ -146,15 +135,16 @@ namespace HtmlToPdfHeadless
                     count++;
                     if (count > 3)
                     {
-                        return null;
+                        return response.Failed($"pdf file not found");
                     }
-                     Task.Delay(100);
+                    Task.Delay(100);
                 }
-                return  File.ReadAllBytes(output);
+                response.Data =  File.ReadAllBytes(output);
+                return response.Success("Pdf generated successfully");
             }
             catch (Exception e)
             {
-                return null;
+                return response.Failed($"an error occurred: {e.Message}");
             }
         }
       
@@ -168,8 +158,9 @@ namespace HtmlToPdfHeadless
         ///this is the path to the html file you want to convert to pdf
         /// </param>
         /// <returns>byte[]</returns>
-        public byte[] GeneratePdfFromHtmlFile(string outputPath,string pathToHtmlFile)
+        public GenericResponse GeneratePdfFromHtmlFile(string outputPath,string pathToHtmlFile)
         {
+            var response = new GenericResponse();
             try
             {
                 var fileName_ = AlphaNumeric(9);
@@ -178,8 +169,8 @@ namespace HtmlToPdfHeadless
                 using (var p = new Process())
                 {
                     var chromeExePath = Path.Combine(Directory.GetCurrentDirectory(), "Assets", "chrome.exe");
-                    //p.StartInfo.FileName = chromeExePath;
-                    p.StartInfo.FileName = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+               
+                    p.StartInfo.FileName = _pathToChromeExecutable;
                     p.StartInfo.Arguments = $"--headless --disable-gpu --print-to-pdf={output} --no-pdf-header-footer --print-to-pdf-no-footer {pathToHtmlFile}";
                     p.Start(); 
                     p.WaitForExit();
@@ -191,16 +182,52 @@ namespace HtmlToPdfHeadless
                     count++;
                     if (count > 3)
                     {
-                        return null;
+                        return response.Failed($"pdf file not found");
                     }
                     Task.Delay(100);
                 }
-                return  File.ReadAllBytes(output);
+                response.Data = File.ReadAllBytes(output);
+                return response.Success("Pdf generated successfully");
             }
             catch (Exception e)
             {
-                return null;
+                return response.Failed($"an error occurred: {e.Message}");
             }
+        }
+
+        private async Task<string> ChromeHeadlessAsync(string outputPath, string htmlText, string htmlPath_, string fileName_)
+        {
+            File.WriteAllText(htmlPath_, htmlText);
+
+            var output = Path.Combine(outputPath, $"{fileName_}.pdf");
+
+            using (var p = new Process())
+            {
+                p.StartInfo.FileName = _pathToChromeExecutable;
+                p.StartInfo.Arguments =
+                    $"--headless --disable-gpu --print-to-pdf={output} --no-pdf-header-footer --print-to-pdf-no-footer {htmlPath_}";
+                p.Start();
+                await p.WaitForExitAsync();
+            }
+
+            return output;
+        }
+        private static async Task<string> ChromeHeadlessAsync(string outputPath, string pathToHtmlFile, string fileName_)
+        {
+            var output = Path.Combine(outputPath, $"{fileName_}.pdf");
+
+            using (var p = new Process())
+            {
+                var chromeExePath = Path.Combine(Directory.GetCurrentDirectory(), "Assets", "chrome.exe");
+                //p.StartInfo.FileName = chromeExePath;
+                p.StartInfo.FileName = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+                p.StartInfo.Arguments =
+                    $"--headless --disable-gpu --print-to-pdf={output} --no-pdf-header-footer --print-to-pdf-no-footer {pathToHtmlFile}";
+                p.Start();
+                await p.WaitForExitAsync();
+            }
+
+            return output;
         }
 
         private static string AlphaNumeric(int length)
@@ -210,5 +237,20 @@ namespace HtmlToPdfHeadless
             return new string(Enumerable.Repeat(chars, length)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
+    }
+
+    public class GenericResponse
+    {
+        public bool IsSuccess { get; set; }
+        public string Message { get; set; }
+        public byte[] Data { get; set; }
+
+
+        public GenericResponse Failed(string msg) => new GenericResponse
+            { IsSuccess = false, Message = msg };
+
+        public GenericResponse Success(string msg) => new GenericResponse { IsSuccess = true, Message = msg, Data = Data };
+
+
     }
 }
